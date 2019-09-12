@@ -29,7 +29,6 @@ enum planck_layers {
   _RAISE,
   _LOWERUS,
   _RAISEUS,
-  _PLOVER,
   _ADJUST
 };
 
@@ -74,8 +73,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+-------------+------+------+------+------+------|
  * | Ctrl |   A  |   S  |   D  |   F  |   G  |   H  |   J  |   K  |   L  | ; :  | -  _ |
  * |------+------+------+------+------+------|------+------+------+------+------+------|
- * | Shift|   Z  |   X  |   C  |   V  |   B  |   N  |   M  | , <  | . >  | / ?  |SHIFT |
- * |------+------+------+------+------+------+------+------+------+------+------+------|
  * | Esc  |Adjust| Alt  |  GUI |Lower | Space|Enter |Raise | Left | Down |  Up  |Right |
  * `-----------------------------------------------------------------------------------'
  */
@@ -187,47 +184,76 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // return state;
 // }
 
+static bool lowerus_pressed = false;
+static bool raiseus_pressed = false;
+static bool lower_pressed = false;
+static bool raise_pressed = false;
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     static bool lshift = false;
     static bool rshift = false;
   switch (keycode) {
     case LOWERUS:
       if (record->event.pressed) {
+        lowerus_pressed = true;
         layer_on(_LOWERUS);
         update_tri_layer(_LOWERUS, _RAISEUS, _ADJUST);
       } else {
         layer_off(_LOWERUS);
         update_tri_layer(_LOWERUS, _RAISEUS, _ADJUST);
+        if (lowerus_pressed) {
+          register_code(KC_LANG2);
+          unregister_code(KC_LANG2);
+        }
+        lowerus_pressed = false;
       }
       return false;
       break;
     case RAISEUS:
       if (record->event.pressed) {
+        raiseus_pressed = true;
         layer_on(_RAISEUS);
         update_tri_layer(_LOWERUS, _RAISEUS, _ADJUST);
       } else {
         layer_off(_RAISEUS);
         update_tri_layer(_LOWERUS, _RAISEUS, _ADJUST);
+        if (raiseus_pressed) {
+          register_code(KC_LANG1);
+          unregister_code(KC_LANG1);
+        }
+        raiseus_pressed = false;
       }
       return false;
       break;
     case LOWER:
       if (record->event.pressed) {
+        lower_pressed = true;
         layer_on(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
       } else {
         layer_off(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
+        if (lower_pressed) {
+          register_code(JP_MHEN);
+          unregister_code(JP_MHEN);
+        }
+        lower_pressed = false;
       }
       return false;
       break;
     case RAISE:
       if (record->event.pressed) {
+        raise_pressed = true;
         layer_on(_RAISE);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
       } else {
         layer_off(_RAISE);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
+        if (raise_pressed) {
+          register_code(JP_HENK);
+          unregister_code(JP_HENK);
+        }
+        raise_pressed = false;
       }
       return false;
       break;
@@ -246,7 +272,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         set_single_persistent_default_layer(_US);
         #ifdef AUDIO_ENABLE
           stop_all_notes();
-          PLAY_SONG(plover_song);
+          PLAY_SONG(plover_gb_song);
         #endif
       }
       return false;
@@ -282,6 +308,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
       }
       return false;
+      break;
+    default: // (3)
+      if (record->event.pressed) {
+        // reset the flag
+        lower_pressed = false;
+        raise_pressed = false;
+        lowerus_pressed = false;
+        raiseus_pressed = false;
+      }
       break;
   }
   return true;
