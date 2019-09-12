@@ -160,7 +160,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * ,-----------------------------------------------------------------------------------.
  * |      | Reset|      |      |      |      |      |      |      |      |      |  Del |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
- * |      |      |      |Aud on|Audoff|AGnorm|AGswap| JIS  |      |      |      |      |
+ * |      |      |      |Aud on|Audoff|AGnorm|AGswap| JIS  | US   |      |      |      |
  * |------+------+------+------+------+------|------+------+------+------+------+------|
  * |      |Voice-|Voice+|Mus on|Musoff|MIDIon|MIDIof|      |      |      |      |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
@@ -169,7 +169,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 [_ADJUST] = LAYOUT_planck_grid(
     _______, RESET,   DEBUG,   RGB_TOG, RGB_MOD, RGB_HUI, RGB_HUD, US, RGB_SAD,  RGB_VAI, RGB_VAD, KC_DEL ,
-    _______, _______, MU_MOD,  AU_ON,   AU_OFF,  AG_NORM, AG_SWAP, JIS,     _______,  _______, _______,  _______,
+    _______, _______, MU_MOD,  AU_ON,   AU_OFF,  AG_NORM, AG_SWAP, JIS,     US     ,  _______, _______,  _______,
     _______, MUV_DE,  MUV_IN,  MU_ON,   MU_OFF,  MI_ON,   MI_OFF,  TERM_ON, TERM_OFF, _______, _______, _______,
     _______, _______, _______, _______, _______, _______, _______, _______, _______,  _______, _______, KC_TRNS
 )
@@ -181,16 +181,56 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   float plover_gb_song[][2]  = SONG(PLOVER_GOODBYE_SOUND);
 #endif
 
-uint32_t layer_state_set_user(uint32_t state) {
-  state = update_tri_layer_state(state, _LOWER, _RAISE, _ADJUST);
-  state = update_tri_layer_state(state, _LOWERUS, _RAISEUS, _ADJUST);
-  return state;
-}
+// uint32_t layer_state_set_user(uint32_t state) {
+  // state = update_tri_layer_state(state, _LOWER, _RAISE, _ADJUST);
+  // state = update_tri_layer_state(state, _LOWERUS, _RAISEUS, _ADJUST);
+  // return state;
+// }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     static bool lshift = false;
     static bool rshift = false;
   switch (keycode) {
+    case LOWERUS:
+      if (record->event.pressed) {
+        layer_on(_LOWERUS);
+        update_tri_layer(_LOWERUS, _RAISEUS, _ADJUST);
+      } else {
+        layer_off(_LOWERUS);
+        update_tri_layer(_LOWERUS, _RAISEUS, _ADJUST);
+      }
+      return false;
+      break;
+    case RAISEUS:
+      if (record->event.pressed) {
+        layer_on(_RAISEUS);
+        update_tri_layer(_LOWERUS, _RAISEUS, _ADJUST);
+      } else {
+        layer_off(_RAISEUS);
+        update_tri_layer(_LOWERUS, _RAISEUS, _ADJUST);
+      }
+      return false;
+      break;
+    case LOWER:
+      if (record->event.pressed) {
+        layer_on(_LOWER);
+        update_tri_layer(_LOWER, _RAISE, _ADJUST);
+      } else {
+        layer_off(_LOWER);
+        update_tri_layer(_LOWER, _RAISE, _ADJUST);
+      }
+      return false;
+      break;
+    case RAISE:
+      if (record->event.pressed) {
+        layer_on(_RAISE);
+        update_tri_layer(_LOWER, _RAISE, _ADJUST);
+      } else {
+        layer_off(_RAISE);
+        update_tri_layer(_LOWER, _RAISE, _ADJUST);
+      }
+      return false;
+      break;
     case JIS:
       if (record->event.pressed) {
         set_single_persistent_default_layer(_JIS);
