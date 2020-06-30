@@ -312,20 +312,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       return false;
       break;
-    case WN_QUOT:                          // JISの「"」と「'」
-      if (record->event.pressed) {
-        lshift = keyboard_report->mods & MOD_BIT(KC_LSFT);
-        rshift = keyboard_report->mods & MOD_BIT(KC_RSFT);
-        if (lshift || rshift) {
-          register_code(JP_QUOT);
-          unregister_code(JP_QUOT);
-        } else {
-          register_code(JP_DQT);
-          unregister_code(JP_DQT);
-        }
-      }
-      return false;
-      break;
     default: // (3)
       if (record->event.pressed) {
         // reset the flag
